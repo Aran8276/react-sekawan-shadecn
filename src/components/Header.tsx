@@ -18,16 +18,35 @@ import {
 } from "./ui/drawer";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
-import { ChangeEvent } from "react";
+import { ChangeEvent, RefObject, useContext } from "react";
+import { ModeToggle } from "./ThemeController";
+import { GlobalValue } from "./GlobalValue";
 
 interface SelfProps {
   searchHandler: (e: ChangeEvent<HTMLInputElement>) => void;
+  searchRef: RefObject<HTMLInputElement>;
 }
 
 export default function Header(props: SelfProps) {
+  const context = useContext(GlobalValue);
+
+  if (!context) {
+    return null; // Handle the case where context is null
+  }
+
+  const { text, setText } = context;
+
   return (
     <header className="sticky top-0 z-10 flex h-[57px] items-center gap-1 border-b bg-background px-4">
-      <h1 className="text-xl font-semibold">Aran8276</h1>
+      <h1 className="text-xl font-semibold">Aran8276 {text}</h1>
+      <div className="pl-4">
+        <Button
+          className="h-8"
+          onClick={() => setText("Telah diganti (horray)")}
+        >
+          Ganti
+        </Button>
+      </div>
       <Drawer>
         <DrawerTrigger asChild>
           <Button variant="ghost" size="icon" className="md:hidden">
@@ -146,15 +165,17 @@ export default function Header(props: SelfProps) {
           </form>
         </DrawerContent>
       </Drawer>
-      <div className="relative pr-12 ml-auto flex-1 md:grow-0">
+      <div className="relative ml-auto flex-1 md:grow-0">
         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
         <Input
+          ref={props.searchRef}
           onChange={props.searchHandler}
           type="search"
           placeholder="Search..."
-          className="w-48 rounded-lg bg-background pl-8 md:w-[200px] lg:w-[300px]"
+          className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[300px]"
         />
       </div>
+      <ModeToggle />
     </header>
   );
 }

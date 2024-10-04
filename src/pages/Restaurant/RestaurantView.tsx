@@ -1,12 +1,16 @@
 import ItemCard from "@/components/ItemCard";
 import { Restaurant } from "./RestaurantList";
+import { GlobalValueInterface } from "@/components/GlobalValue";
 
-export default function RestaurantView(props: { data: Restaurant[] }) {
+export default function RestaurantView(props: {
+  data: Restaurant[];
+  context: GlobalValueInterface | null;
+}) {
   return (
     <div className="flex flex-col p-8">
       <div className="pb-4">
         <h2 className="flex-1 shrink-0 whitespace-nowrap text-3xl font-semibold tracking-tight sm:grow-0">
-          Resto
+          Resto {props.context?.text}
         </h2>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

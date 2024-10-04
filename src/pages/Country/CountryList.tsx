@@ -1,10 +1,11 @@
 import axios from "axios";
-import { useEffect, useReducer } from "react";
+import { RefObject, useEffect, useReducer } from "react";
 import { useSearchParams } from "react-router-dom";
 import CountryView from "./CountryView";
 
 interface SelfProps {
   search: string;
+  searchRef: RefObject<HTMLInputElement>;
 }
 
 export interface Country {
@@ -77,6 +78,7 @@ export default function CountryList(props: SelfProps) {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [searchParams, setSearchParams] = useSearchParams();
   const searchParam = searchParams.get("search");
+  const inputValue = props.searchRef?.current?.value;
 
   const fetchData = async () => {
     try {
@@ -97,13 +99,28 @@ export default function CountryList(props: SelfProps) {
   };
 
   useEffect(() => {
-    fetchData();
+    if (!props.searchRef.current || !searchParam) {
+      fetchData();
+      return;
+    }
+    props.searchRef.current.value = searchParam;
+    setSearchParams({ search: props.searchRef.current.value });
+    dispatch({
+      type: "SET_SEARCH_QUERY",
+      payload: props.searchRef.current.value,
+    });
   }, []);
 
   useEffect(() => {
+    console.log(props.searchRef?.current?.value);
+  }, [inputValue]);
+
+  useEffect(() => {
     if (props.search === "") {
+      return;
+    }
+    if (inputValue === "") {
       setSearchParams({});
-      dispatch({ type: "SET_FETCH", payload: [] }); // Clear the current data
       return;
     }
     setSearchParams({ search: props.search });
@@ -111,8 +128,6 @@ export default function CountryList(props: SelfProps) {
 
   useEffect(() => {
     if (!searchParam || searchParam === "") {
-      fetchData(); // Fetch initial data if no search param
-      setSearchParams({});
       return;
     }
     fetchDataSearch(searchParam);

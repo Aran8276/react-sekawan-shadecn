@@ -1,10 +1,12 @@
 import axios from "axios";
-import { useReducer, useEffect } from "react";
+import { useReducer, useEffect, useContext, RefObject } from "react";
 import RestaurantView from "./RestaurantView";
 import { useSearchParams } from "react-router-dom";
+import GlobalValue from "@/components/GlobalValue";
 
 interface SelfProps {
   search: string;
+  searchRef: RefObject<HTMLInputElement>;
 }
 
 export interface RestoData {
@@ -82,6 +84,8 @@ export default function RestaurantList(props: SelfProps) {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [searchParams, setSearchParams] = useSearchParams();
   const searchParam = searchParams.get("search");
+  const contextValue = useContext(GlobalValue);
+  const inputValue = props.searchRef?.current?.value;
 
   const fetchData = async () => {
     try {
@@ -102,13 +106,28 @@ export default function RestaurantList(props: SelfProps) {
   };
 
   useEffect(() => {
-    fetchData();
+    if (!props.searchRef.current || !searchParam) {
+      fetchData();
+      return;
+    }
+    props.searchRef.current.value = searchParam;
+    setSearchParams({ search: props.searchRef.current.value });
+    dispatch({
+      type: "SET_SEARCH_QUERY",
+      payload: props.searchRef.current.value,
+    });
   }, []);
 
   useEffect(() => {
+    console.log(props.searchRef?.current?.value);
+  }, [inputValue]);
+
+  useEffect(() => {
     if (props.search === "") {
+      return;
+    }
+    if (inputValue === "") {
       setSearchParams({});
-      dispatch({ type: "SET_FETCH", payload: [] }); // Clear the current data
       return;
     }
     setSearchParams({ search: props.search });
@@ -116,12 +135,10 @@ export default function RestaurantList(props: SelfProps) {
 
   useEffect(() => {
     if (!searchParam || searchParam === "") {
-      fetchData(); // Fetch initial data if no search param
-      setSearchParams({});
       return;
     }
     fetchDataSearch(searchParam);
   }, [searchParam]);
 
-  return <RestaurantView data={state.data} />;
+  return <RestaurantView context={contextValue} data={state.data} />;
 }
