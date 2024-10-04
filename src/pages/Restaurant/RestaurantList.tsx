@@ -85,6 +85,7 @@ export default function RestaurantList(props: SelfProps) {
   const [searchParams, setSearchParams] = useSearchParams();
   const searchParam = searchParams.get("search");
   const contextValue = useContext(GlobalValue);
+  const inputValue = props.searchRef?.current?.value;
 
   const fetchData = async () => {
     try {
