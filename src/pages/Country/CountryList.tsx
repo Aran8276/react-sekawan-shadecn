@@ -112,7 +112,11 @@ export default function CountryList(props: SelfProps) {
   }, []);
 
   useEffect(() => {
-    console.log(props.searchRef?.current?.value);
+    if (props.searchRef?.current?.value === "") {
+      setSearchParams({});
+      fetchData();
+      return;
+    }
   }, [inputValue]);
 
   useEffect(() => {

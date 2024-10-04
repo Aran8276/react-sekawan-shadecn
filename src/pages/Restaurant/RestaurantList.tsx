@@ -85,7 +85,6 @@ export default function RestaurantList(props: SelfProps) {
   const [searchParams, setSearchParams] = useSearchParams();
   const searchParam = searchParams.get("search");
   const contextValue = useContext(GlobalValue);
-  const inputValue = props.searchRef?.current?.value;
 
   const fetchData = async () => {
     try {
@@ -119,8 +118,13 @@ export default function RestaurantList(props: SelfProps) {
   }, []);
 
   useEffect(() => {
+    if (props.searchRef?.current?.value === "") {
+      setSearchParams({});
+      fetchData();
+      return;
+    }
     console.log(props.searchRef?.current?.value);
-  }, [inputValue]);
+  }, [props.searchRef?.current?.value]);
 
   useEffect(() => {
     if (props.search === "") {
