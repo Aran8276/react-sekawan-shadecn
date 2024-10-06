@@ -8,3 +8,5 @@ Git checkout adalah utk merubah branch
 git branch namabranch
 
 git checkout namabranch
+
+Jika ada `publicj branch` artinya sukses utk mengganti dan buat branch baru
