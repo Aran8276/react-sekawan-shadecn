@@ -14,6 +14,7 @@ import {
   Search,
   ChevronDown,
   Languages,
+  User,
 } from "lucide-react";
 import { Button } from "./ui/button";
 import {
@@ -105,27 +106,32 @@ export default function Header(props: SelfProps) {
     console.log(langString);
   }, [lang]);
 
-  useEffect(() => {
-    console.log(userString);
-  }, [user]);
-
+  // Gave up on this :(
   useEffect(() => {
     const storedTheme = window.localStorage.getItem("theme");
     if (!storedTheme) {
       window.localStorage.setItem("theme", "dark");
-    }
-    if (storedTheme == "light") {
-      root.classList.add("light");
-      return;
-    }
-    if (storedTheme == "dark") {
       root.classList.add("dark");
-      return;
+    } else {
+      root.classList.add(storedTheme);
     }
   }, []);
 
   useEffect(() => {
-    console.log(theme.theme.theme);
+    root.classList.remove("light", "dark");
+    if (themeString === "dark") {
+      root.classList.add("dark");
+      window.localStorage.setItem("theme", "dark");
+    } else if (themeString === "light") {
+      root.classList.add("light");
+      window.localStorage.setItem("theme", "light");
+    }
+  }, [themeString]);
+
+  const handleThemeChange = () => {
+    const storedTheme = window.localStorage.getItem("theme");
+    console.log(`Theme String: ${themeString}`);
+    console.log(`Stored String: ${storedTheme}`);
     root.classList.remove("light", "dark");
     if (themeString == "dark") {
       root.classList.add("dark");
@@ -137,6 +143,10 @@ export default function Header(props: SelfProps) {
       window.localStorage.setItem("theme", "light");
       return;
     }
+  };
+
+  useEffect(() => {
+    handleThemeChange();
   }, [theme]);
 
   // const context = useContext(GlobalValue);
@@ -167,8 +177,8 @@ export default function Header(props: SelfProps) {
           <DropdownMenuContent className="w-56 mt-2 mr-3">
             <DropdownMenuLabel>
               <div className="flex space-x-4">
-                <Languages className="size-4 self-center" />
-                <span>Bahasa / Language</span>
+                <User className="size-4 self-center" />
+                <span>User</span>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />

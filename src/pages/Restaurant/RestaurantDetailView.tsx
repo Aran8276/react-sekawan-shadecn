@@ -59,7 +59,7 @@ export default function RestaurantDetailView(props: {
             </CardContent>
           </Card>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {props.data.customerReviews.map((item, index) => {
+            {props.data.customerReviews?.map((item, index) => {
               return (
                 <Card className="" key={index}>
                   <CardHeader className="text-lg text-slate-800 font-bold">
