@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import RestaurantDetailView from "./RestaurantDetailView";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import axios from "axios";
 import type { Restaurant as RestaurantDetail } from "./RestaurantDetailView";
 import { useDispatch, useSelector } from "react-redux";
