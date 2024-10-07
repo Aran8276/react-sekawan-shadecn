@@ -6,7 +6,15 @@ import {
   SelectContent,
   SelectItem,
 } from "@radix-ui/react-select";
-import { Settings, Rabbit, Bird, Turtle, Search } from "lucide-react";
+import {
+  Settings,
+  Rabbit,
+  Bird,
+  Turtle,
+  Search,
+  ChevronDown,
+  Languages,
+} from "lucide-react";
 import { Button } from "./ui/button";
 import {
   DrawerTrigger,
@@ -18,34 +26,163 @@ import {
 } from "./ui/drawer";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
-import { ChangeEvent, RefObject, useContext } from "react";
-import { ModeToggle } from "./ThemeController";
-import { GlobalValue } from "./GlobalValue";
+import {
+  ChangeEvent,
+  RefObject,
+  /* useContext*/ useEffect,
+  useState,
+} from "react";
+// import { ModeToggle } from "./ThemeController";
+import { toggleTheme } from "@/store/action/themeAction";
+import { Theme } from "@/pages/Homepage";
+import { useSelector, useDispatch } from "react-redux";
+import FakeTheme from "./FakeTheme";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
+import { setLang } from "@/store/action/langAction";
+import { setUser } from "@/store/action/userAction";
+
+export interface Language {
+  lang: LanguageObject;
+}
+
+interface LanguageObject {
+  lang: "en" | "id";
+}
+
+export interface User {
+  lang: UserObject;
+}
+
+interface UserObject {
+  lang: "admin" | "superadmin";
+}
 
 interface SelfProps {
   searchHandler: (e: ChangeEvent<HTMLInputElement>) => void;
   searchRef: RefObject<HTMLInputElement>;
 }
 
+export const isId = (
+  langString: "en" | "id",
+  textId: string,
+  textEn: string
+) => {
+  const output = langString == "id" ? textId : textEn;
+  return output;
+};
+
 export default function Header(props: SelfProps) {
-  const context = useContext(GlobalValue);
+  const theme = useSelector((store: Theme) => store);
+  const themeString = theme.theme.theme;
+  const lang = useSelector((store: Language) => store);
+  const langString = lang.lang.lang;
+  const user = useSelector((store: User) => store);
+  const userString = user.user.user;
+  const root = window.document.documentElement;
+  const [position, setPosition] = useState("id");
+  const [positionAdmin, setPositionAdmin] = useState("id");
+  const dispatchRedux = useDispatch();
 
-  if (!context) {
-    return null; // Handle the case where context is null
-  }
+  const changeLangHandler = (lang: string) => {
+    setPosition(lang);
+    dispatchRedux(setLang(lang));
+  };
 
-  const { text, setText } = context;
+  const changeAdminHandler = (user: string) => {
+    setPosition(user);
+    dispatchRedux(setUser(user));
+  };
+
+  useEffect(() => {
+    console.log(langString);
+  }, [lang]);
+
+  useEffect(() => {
+    console.log(userString);
+  }, [user]);
+
+  useEffect(() => {
+    const storedTheme = window.localStorage.getItem("theme");
+    if (!storedTheme) {
+      window.localStorage.setItem("theme", "dark");
+    }
+    if (storedTheme == "light") {
+      root.classList.add("light");
+      return;
+    }
+    if (storedTheme == "dark") {
+      root.classList.add("dark");
+      return;
+    }
+  }, []);
+
+  useEffect(() => {
+    console.log(theme.theme.theme);
+    root.classList.remove("light", "dark");
+    if (themeString == "dark") {
+      root.classList.add("dark");
+      window.localStorage.setItem("theme", "dark");
+      return;
+    }
+    if (themeString == "light") {
+      root.classList.add("light");
+      window.localStorage.setItem("theme", "light");
+      return;
+    }
+  }, [theme]);
+
+  // const context = useContext(GlobalValue);
+
+  // if (!context) {
+  //   return null; // Handle the case where context is null
+  // }
+
+  // const { text, setText } = context;
 
   return (
     <header className="sticky top-0 z-10 flex h-[57px] items-center gap-1 border-b bg-background px-4">
-      <h1 className="text-xl font-semibold">Aran8276 {text}</h1>
+      <h1 className="text-xl font-semibold">Aran8276</h1>
       <div className="pl-4">
-        <Button
-          className="h-8"
-          onClick={() => setText("Telah diganti (horray)")}
-        >
-          Ganti
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <div className="flex justify-between w-[7.25rem]">
+              <ChevronDown className="size-4 relative top-[1px] self-center" />
+              <p className="cursor-pointer">
+                {userString == "admin" ? (
+                  <span className="relative right-12">Admin</span>
+                ) : (
+                  <span className="">Super Admin</span>
+                )}
+              </p>
+            </div>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-56 mt-2 mr-3">
+            <DropdownMenuLabel>
+              <div className="flex space-x-4">
+                <Languages className="size-4 self-center" />
+                <span>Bahasa / Language</span>
+              </div>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuRadioGroup
+              value={positionAdmin}
+              onValueChange={changeAdminHandler}
+            >
+              <DropdownMenuRadioItem value="admin">Admin</DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="superadmin">
+                Super Admin
+              </DropdownMenuRadioItem>
+            </DropdownMenuRadioGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
       <Drawer>
         <DrawerTrigger asChild>
@@ -175,7 +312,44 @@ export default function Header(props: SelfProps) {
           className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[300px]"
         />
       </div>
-      <ModeToggle />
+      {/* <ModeToggle /> */}
+      <FakeTheme
+        mode={themeString}
+        onClickHandler={() => dispatchRedux(toggleTheme())}
+      />
+
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <div className="flex justify-between w-[5.50rem]">
+            <ChevronDown className="size-4 relative top-[1px] self-center" />
+            <p className="cursor-pointer">
+              {langString == "id" ? (
+                <span>Indonesia</span>
+              ) : (
+                <span className="relative right-4">English</span>
+              )}
+            </p>
+          </div>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-56 mt-2 mr-3">
+          <DropdownMenuLabel>
+            <div className="flex space-x-4">
+              <Languages className="size-4 self-center" />
+              <span>Bahasa / Language</span>
+            </div>
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuRadioGroup
+            value={position}
+            onValueChange={changeLangHandler}
+          >
+            <DropdownMenuRadioItem value="id">
+              Bahasa Indonesia
+            </DropdownMenuRadioItem>
+            <DropdownMenuRadioItem value="en">English</DropdownMenuRadioItem>
+          </DropdownMenuRadioGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </header>
   );
 }

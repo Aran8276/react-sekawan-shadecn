@@ -1,3 +1,11 @@
+export interface Theme {
+  theme: ThemeObject;
+}
+
+export interface ThemeObject {
+  theme: string;
+}
+
 export default function Homepage() {
   return (
     <>
