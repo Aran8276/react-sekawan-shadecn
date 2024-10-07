@@ -58,11 +58,11 @@ interface LanguageObject {
 }
 
 export interface User {
-  lang: UserObject;
+  user: UserObject;
 }
 
 interface UserObject {
-  lang: "admin" | "superadmin";
+  user: "admin" | "superadmin";
 }
 
 interface SelfProps {
@@ -97,7 +97,7 @@ export default function Header(props: SelfProps) {
   };
 
   const changeAdminHandler = (user: string) => {
-    setPosition(user);
+    setPositionAdmin(user);
     dispatchRedux(setUser(user));
   };
 
